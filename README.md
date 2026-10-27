@@ -1,28 +1,62 @@
 # RoboShop Docker
 
-This repository contains a Docker Compose-based deployment for the RoboShop microservices application. It packages the frontend, cart, catalogue, user, payment, shipping, and backing services as individual containers connected through Docker networking.
+This repository contains a Docker Compose based deployment for the RoboShop application. It packages the storefront and supporting backend services so they can run together on a single host or local development environment.
+
+## Project Overview
+
+RoboShop is a multi-service e-commerce application composed of a frontend, several business services, and supporting infrastructure components such as MongoDB, Redis, MySQL, and RabbitMQ. This repository demonstrates how those services can be composed into a single local environment using Docker Compose.
+
+## Problem Statement
+
+Microservice applications are easier to reason about when each component can be run in isolation, but they also require a consistent startup and networking model. This repository provides a simple orchestration layer for local development and validation.
+
+## Key Features
+
+- Docker Compose based orchestration
+- Multi-service application topology
+- Service-level containerization
+- Named volumes for persistent state
+- Local environment simulation for application dependencies
+- Reusable portfolio example for Docker and DevOps workflows
 
 ## Architecture Overview
 
-The stack includes:
+The application is organized into UI, application logic, and data/messaging services.
 
-- Frontend
-- Catalogue
-- User
-- Cart
-- Shipping
-- Payment
+```mermaid
+flowchart LR
+    Browser[User Browser] --> Frontend[frontend]
+    Frontend --> Catalogue[catalogue]
+    Frontend --> User[user]
+    Frontend --> Cart[cart]
+    Frontend --> Payment[payment]
+    Frontend --> Shipping[shipping]
+
+    Catalogue --> MongoDB[mongodb]
+    User --> MongoDB
+    Cart --> Redis[redis]
+    Cart --> MySQL[mysql]
+    Payment --> RabbitMQ[rabbitmq]
+    Shipping --> MySQL
+    Shipping --> RabbitMQ
+```
+
+## Technology Stack
+
+- Docker
+- Docker Compose
+- Linux containers
 - MongoDB
 - Redis
 - MySQL
 - RabbitMQ
-
-The services are defined in `docker-compose.yaml` and use custom image tags built from the project directories.
+- Microservice application code
 
 ## Repository Structure
 
-```bash
+```text
 .
+├── README.md
 ├── docker-compose.yaml
 ├── frontend/
 ├── cart/
@@ -34,45 +68,87 @@ The services are defined in `docker-compose.yaml` and use custom image tags buil
 ├── mysql/
 ├── redis/
 ├── rabbitmq/
-└── README.md
+└── debug/
 ```
 
-## Service Summary
+## Prerequisites
 
-- `frontend` serves the application UI.
-- `catalogue`, `user`, `cart`, `payment`, and `shipping` represent the app business services.
-- `mongodb`, `redis`, `mysql`, and `rabbitmq` provide stateful and messaging dependencies.
-- Docker Compose manages service startup order and network configuration.
+- Docker Engine
+- Docker Compose
+- CPU and memory available for multiple containers
+- Internet access to pull base images
 
-## How to Run
+## Installation and Usage
+
+Clone the repository and run:
 
 ```bash
 docker compose up -d
 ```
 
-To stop and remove containers:
+To stop the environment:
 
 ```bash
 docker compose down
 ```
 
-## Useful Notes
+To rebuild containers after source changes:
 
-- Images are tagged as `ravidasari145/<service>:1.0.0`.
-- Networking is defined via a default Docker bridge network.
-- Persistent data is mapped to named volumes for MongoDB, Redis, MySQL, and RabbitMQ.
+```bash
+docker compose up -d --build
+```
 
-## Use Cases
+## Configuration
 
-This repository is useful for:
+The Compose file defines service names, environment variables, ports, networks, and volume mounts. Most configuration is centralized in `docker-compose.yaml` and service-specific folders.
 
-- learning Docker Compose multi-service orchestration
-- validating microservice dependencies and startup order
-- demonstrating an end-to-end app deployment in a local environment
+## Build and Deployment Notes
 
-## Related Projects
+This repository is intended for local development and learning workflows rather than production deployment. Image tags such as `ravidasari145/<service>:1.0.0` are used in the Compose definitions.
+
+## Security
+
+- Services are intentionally local and development-oriented
+- No production secrets are committed to the repository
+- Network isolation is provided by Docker networking rather than cloud network policies
+
+## Testing and Validation
+
+Validate startup by checking container status:
+
+```bash
+docker compose ps
+```
+
+Inspect logs when needed:
+
+```bash
+docker compose logs -f
+```
+
+## Current Implementation Status
+
+- Local multi-service environment is defined
+- Compose configuration is present and usable for development
+- Service dependencies are modeled in the stack
+
+## Known Limitations
+
+- Not designed for production-grade deployment
+- No CI pipeline is included in this repository
+- Local environment behavior depends on Docker host resources
+
+## Future Improvements
+
+- Add health checks and readiness probes
+- Document service dependency order and troubleshoot commands
+- Add environment-specific compose files
+- Add automated smoke tests
+
+## Related Repositories
 
 - [roboshop-ansible](https://github.com/dasariravi145/roboshop-ansible)
 - [ansible-roboshop-roles](https://github.com/dasariravi145/ansible-roboshop-roles)
 - [k8-roboshop](https://github.com/dasariravi145/k8-roboshop)
-- [shell-roboshop](https://github.com/dasariravi145/shell-roboshop)
+- [roboshop-infra-dev](https://github.com/dasariravi145/roboshop-infra-dev)
+- [roboshop-infra-eks](https://github.com/dasariravi145/roboshop-infra-eks)
